@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IGaming.Core\IGaming.Core.csproj" />
-    <ProjectReference Include="..\IGaming.Shared\IGaming.Infrastructure.csproj" />
+    <ProjectReference Include="..\IGaming.Infrastructure\IGaming.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

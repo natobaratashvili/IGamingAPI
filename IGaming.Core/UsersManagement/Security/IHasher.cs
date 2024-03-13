@@ -8,7 +8,7 @@ namespace IGaming.Core.UsersManagement.Security
 {
     public interface IHasher
     {
-        public string Compute(string input);
-        public bool Verify(string input, string hashedInput);
+        public string Compute(string password, string username);
+        public bool Verify(string password, string username,  string hashedInput);
     }
 }

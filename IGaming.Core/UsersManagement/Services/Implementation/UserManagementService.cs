@@ -31,7 +31,7 @@ namespace IGaming.Core.UsersManagement.Services.Implementation
                  return Result.Failure("Credentials", $"Invalid username or password.", 401);
             
 
-            var isPasswordVerified = _hasher.Verify(authenticateRequest.Password, profile?.HashedPassword);
+            var isPasswordVerified = _hasher.Verify(authenticateRequest.Password,authenticateRequest.Username, profile?.HashedPassword);
             if (isPasswordVerified)
             {
                 var calims = new Dictionary<string, string>
@@ -57,7 +57,7 @@ namespace IGaming.Core.UsersManagement.Services.Implementation
         public async Task<Result> RegisterAsync(UserRegistrationRequest userRegistration, CancellationToken cancellationToken)
         {
             var user = userRegistration.ToUserDto();
-            user.HashedPassword = _hasher.Compute(userRegistration.Password);
+            user.HashedPassword = _hasher.Compute(userRegistration.Password, userRegistration.UserName);
             var result = await _db.RunWithTransactionAsync(async (dbconncetion, transaction) => 
             {
                 var withSameEmail = await _userRepository.GetByEmailAsync(dbconncetion, userRegistration.Email, transaction);

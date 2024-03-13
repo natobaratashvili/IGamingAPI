@@ -6,16 +6,17 @@ namespace IGaming.Infrastructure.Security.Hashing
 {
     public class Hasher : IHasher
     {
-        public string Compute(string input)
+        public string Compute(string password, string username )
         {
             using var sha256 = SHA256.Create();
-            byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var concat = password + username;
+            byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(concat));
             return Convert.ToBase64String(hashedBytes);
         }
 
-        public bool Verify(string input, string hashedInput)
+        public bool Verify(string password , string username,  string hashedInput)
         {
-            string hashedInputToVerify = Compute(input);
+            string hashedInputToVerify = Compute(password, username);
             return string.Equals(hashedInputToVerify, hashedInput, StringComparison.Ordinal);
         }
     }

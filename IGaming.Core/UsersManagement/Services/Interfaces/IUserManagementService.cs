@@ -1,4 +1,5 @@
-﻿using IGaming.Core.UsersManagement.Dtos;
+﻿using IGaming.Core.Common;
+using IGaming.Core.UsersManagement.Dtos;
 using IGaming.Core.UsersManagement.RequestModels;
 using IGaming.Core.UsersManagement.ResponseModels;
 using System;
@@ -11,8 +12,8 @@ namespace IGaming.Core.UsersManagement.Services.Interfaces
 {
     public interface IUserManagementService
     {
-        Task RegisterAsync(UserRegistrationRequest userRegistration, CancellationToken cancellationToken);
-        Task<string> AuthenticateAsync(UserAuthenticateRequest authenticateRequest, CancellationToken cancellationToken);
-        Task<UserProfileResponse> GetProfileAsync(string userName, CancellationToken cancellationToken);
+        Task<Result> RegisterAsync(UserRegistrationRequest userRegistration, CancellationToken cancellationToken);
+        Task<Result> AuthenticateAsync(UserAuthenticateRequest authenticateRequest, CancellationToken cancellationToken);
+        Task<Result> GetProfileAsync(string userName, CancellationToken cancellationToken);
     }
 }

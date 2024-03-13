@@ -12,7 +12,15 @@ namespace IGaming.Core.UsersManagement.Validators
     {
         public AuthenticateRequestValidator()
         {
-
+            //Username must only contain letters, numbers, or underscores
+            RuleFor(x => x.Username)
+            .NotEmpty().WithMessage("Username cannot be empty")
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Invadlid username");
+            //Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one digit
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("Password cannot be empty")
+                .Matches(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$")
+                .WithMessage("Invalid password");
         }
     }
 }

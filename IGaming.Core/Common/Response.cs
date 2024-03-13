@@ -1,54 +1,77 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IGaming.Core.Common
 {
-    public class Response<T>
+    public class Result
     {
         public bool IsSuccess { get; }
         public bool IsFailure => !IsSuccess;
-        public T Data { get; }
-        public List<string> ErrorMessages { get; } = new List<string>();
-
-        private Response(bool isSuccess, T data, string? errorMessage)
+        internal int Code { get; set; }
+        public string Status => IsFailure ? "Error" : "Success";
+        public Dictionary<string, string> Errors { get; set; } = new Dictionary<string, string>();
+        public int GetStatusCode()
+        {
+            return Code;
+        }
+        protected Result(bool isSuccess, string? key, string? errorMessage, int code)
         {
             IsSuccess = isSuccess;
-            Data = data;
-            if (!string.IsNullOrEmpty(errorMessage))
+            Code = code;
+            if (!string.IsNullOrEmpty(errorMessage) && !string.IsNullOrEmpty(key))
             {
-                ErrorMessages.Add(errorMessage);
+                Errors[key] = errorMessage;
             }
         }
-        private Response(bool isSuccess, T data, List<string> errorMessages)
+
+        public static Result Success()
         {
-            IsSuccess = isSuccess;
+            return new Result(true, default, default, 200);
+        }
+        public static Result Success(int code)
+        {
+            return new Result(true, default, default, code);
+        }
+
+        public static Result Failure(string name, string message, int code)
+        {
+            return new Result(false, name, message, code);
+        }
+        public static Result Failure(int code)
+        {
+            return new Result(false, default, default, code);
+        }
+        
+    }
+
+    public class Result<T> : Result
+    {
+        public T Data { get; }
+
+        private Result(bool isSuccess, T data, string? key, string? errorMessage, int code)
+            : base(isSuccess, key, errorMessage, code)
+        {
             Data = data;
-            ErrorMessages.AddRange(errorMessages);
         }
 
-        public static Response<T> Success(T data)
+        public static Result<T> Success(T data)
         {
-            return new Response<T>(true, data, default(string));
-        }
-        public static Response<T> Success()
-        {
-            return new Response<T>(true, default!, default(string));
+            return new Result<T>(true, data, default, default, 200);
         }
 
-        public static Response<T> Failure(string errorMessage)
+        public static Result<T> Success(int code)
         {
-            return new Response<T>(false, default!, errorMessage);
+            return new Result<T>(true, default!, default, default,code );
         }
-        public static Response<T> Failure(int code)
+
+        public static Result<T> Failure(string name, string message)
         {
-            return new Response<T>(false, default!, "Failure");
+            return new Result<T>(false, default!, name, message, 400);
         }
-        public static Response<T> Failure(List<string> errorMessages)
+
+        public static Result<T> Failure(int code)
         {
-            return new Response<T>(false, default!, errorMessages);
+            return new Result<T>(false, default!, default, default,code );
         }
     }
 }

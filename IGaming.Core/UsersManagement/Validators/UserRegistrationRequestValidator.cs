@@ -12,20 +12,22 @@ namespace IGaming.Core.UsersManagement.Validators
     {
         public UserRegistrationRequestValidator()
         {
-            RuleFor(request => request.UserName)
-          .NotEmpty().WithMessage("Username cannot be empty")
-          .MinimumLength(3).WithMessage("Username must be at least 3 characters long");
+            RuleFor(x => x.UserName)
+            .NotEmpty().WithMessage("Username cannot be empty")
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Username must only contain letters, numbers, or underscores");
 
-            RuleFor(request => request.Email)
+            RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email cannot be empty")
-                .EmailAddress().WithMessage("Invalid email address");
+                .EmailAddress().WithMessage("Invalid email format");
 
-            //RuleFor(request => request.Password)
-            //    .NotEmpty().WithMessage("Password cannot be empty")
-            //    .MinimumLength(6).WithMessage("Password must be at least 6 characters long");
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("Password cannot be empty")
+                .Matches(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$")
+                .WithMessage("Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one digit");
 
-            //RuleFor(request => request.ConfirmPassword)
-            //    .Equal(request => request.Password).WithMessage("Passwords do not match");
+            RuleFor(x => x.ConfirmPassword)
+                .NotEmpty().WithMessage("Confirm Password cannot be empty")
+                .Equal(x => x.Password).WithMessage("Passwords do not match");
         }
     }
 }

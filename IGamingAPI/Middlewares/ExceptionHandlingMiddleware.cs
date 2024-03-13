@@ -1,5 +1,8 @@
 ﻿using FluentValidation;
+using Hellang.Middleware.ProblemDetails;
 using IGaming.Core.Common;
+using Microsoft.AspNetCore.Mvc;
+using Mysqlx;
 using Newtonsoft.Json;
 using System;
 using System.Net;
@@ -14,22 +17,13 @@ namespace IGaming.API.Middlewares
             {
                 await next(context);
             }
-            catch (ValidationException ex)
+            catch (Exception Ex)
             {
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = 400;
-                var messages = ex.Errors.Select(x => x.ErrorMessage).ToList();
-                var validationFailureResponse = Response<object>.Failure(messages);
-                await context.Response.WriteAsJsonAsync(validationFailureResponse);
-            }
-            catch (Exception)
-            {
+                
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-
-               var result = Response<object>.Failure("An unexpected error occurred.");
-
-                await context.Response.WriteAsJsonAsync(result);
+                var resonse = Result.Failure("Bad Request", "Something unexpected happened.", 500);
+                await context.Response.WriteAsJsonAsync(resonse);
             }
         }
     }

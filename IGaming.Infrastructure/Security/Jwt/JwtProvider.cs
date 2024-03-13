@@ -11,6 +11,7 @@ namespace IGaming.Infrastructure.Security.Jwt;
 public class JwtProvider  : IJwtProvider
 {
     private readonly JwtSettings _jwtSettings;
+
     public JwtProvider( IOptions<JwtSettings> jwtOptions)
     {
         _jwtSettings = jwtOptions.Value;
@@ -39,36 +40,39 @@ public class JwtProvider  : IJwtProvider
 
     public bool ValidateToken(string token)
     {
-        var tokenParts = token.Split('.');
-        if (tokenParts.Length != 3) return false;
+        try
+        {
+            var tokenParts = token.Split('.');
+            if (tokenParts.Length != 3) return false;
 
-        var headerEncoded = tokenParts[0];
-        var payloadEncoded = tokenParts[1];
-        var providedSignature = tokenParts[2];
+            var headerEncoded = tokenParts[0];
+            var payloadEncoded = tokenParts[1];
+            var providedSignature = tokenParts[2];
 
-        var header = JsonConvert.DeserializeObject<Dictionary<string, string>>(Base64UrlDecode(headerEncoded));
-        var payload = JsonConvert.DeserializeObject<Dictionary<string, string>>(Base64UrlDecode(payloadEncoded));
-
-  
-        var signatureForEncoding = $"{headerEncoded}.{payloadEncoded}";
-
-        var encodedSignature = Base64UrlSafeEncode(Sign(signatureForEncoding));
-      
-        if(header["alg"] != "HS256") return false;
-
-        if (encodedSignature != providedSignature) return false;
+            var header = JsonConvert.DeserializeObject<Dictionary<string, string>>(Base64UrlDecode(headerEncoded));
+            var payload = JsonConvert.DeserializeObject<Dictionary<string, string>>(Base64UrlDecode(payloadEncoded));
 
 
-        var now = DateTime.UtcNow.ToUnix();
+            var signatureForEncoding = $"{headerEncoded}.{payloadEncoded}";
 
-        if (payload["exp"] != null && long.Parse( payload["exp"]) < now) return false;
-        
+            var encodedSignature = Base64UrlSafeEncode(Sign(signatureForEncoding));
 
-        if (payload["iat"] != null && long.Parse(payload["iat"]) > now)   return false;
-        
-        return true;
+            if (header["alg"] != "HS256") return false;
+
+            if (encodedSignature != providedSignature) return false;
+
+
+            var now = DateTime.UtcNow.ToUnix();
+
+            if (payload["exp"] != null && long.Parse(payload["exp"]) < now) return false;
+
+
+            if (payload["iat"] != null && long.Parse(payload["iat"]) > now) return false;
+
+            return true;
+        } catch { return false; }
     }
-    public static Dictionary<string, string> GetClaims(string token )
+    public static Dictionary<string, string>? GetClaims(string token )
     {
         var tokenParts = token.Split('.');
         if (tokenParts.Length != 3) return null;

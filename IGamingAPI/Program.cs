@@ -11,6 +11,13 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Reflection;
 using IGaming.Core.UsersManagement.Validators;
+using Hellang.Middleware.ProblemDetails;
+using IGaming.API.Filters;
+using IGaming.Core.Bets.Services.Interfaces;
+using IGaming.Core.Bets.Repositories.Interfaces;
+using IGaming.Core.Bets.Repositories.Implementation;
+using IGaming.Core.Bets.Services.Implementation;
+using IGaming.Core.Database;
 
 ;
 
@@ -55,7 +62,6 @@ builder.Services.AddApiVersioning(options =>
 });
 
 
-//builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<UserRegistrationRequestValidator>();
 
 builder.Services.AddJwtProvider( settings => builder.Configuration.GetSection("JwtSettings").Bind(settings));
@@ -63,8 +69,14 @@ builder.Services.AddHasher();
 builder.Services.AddDbConnectionProvider(settings => builder.Configuration.GetSection("DbConfig").Bind(settings));
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBetsManagementService, BetsManagementService>();
+builder.Services.AddScoped<IBetsRepository, BetsRepository>();
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+builder.Services.AddSingleton<IDbWrapper, DbWrapper>();
+
 var app = builder.Build();
+//app.UseProblemDetails();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -72,11 +84,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseApiVersioning();
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
